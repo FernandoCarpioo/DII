@@ -11,7 +11,6 @@ function Login() {
   return (
     <div className="min-h-screen flex">
 
-      {/* LEFT SIDE */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
         src={bgIPN}
@@ -55,7 +54,6 @@ function Login() {
 
       </div>
 
-      {/* RIGHT SIDE */}
       <div className="flex-1 flex items-center justify-center bg-[#f5f6fa] px-6">
 
         <div className="bg-white w-full max-w-xl rounded-3xl shadow-xl p-10">
@@ -74,7 +72,6 @@ function Login() {
 
           <form className="space-y-6">
 
-            {/* USER */}
             <div>
 
               <label className="block text-sm font-semibold mb-2">
@@ -98,7 +95,6 @@ function Login() {
 
             </div>
 
-            {/* PASSWORD */}
             <div>
 
               <label className="block text-sm font-semibold mb-2">

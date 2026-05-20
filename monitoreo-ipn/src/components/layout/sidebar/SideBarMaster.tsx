@@ -82,7 +82,7 @@ function SidebarMaster({ isCollapsed, setIsCollapsed }: SidebarProps) {
       }`}
     >
       
-      {/* BOTÓN PARA COLAPSAR/EXPANDIR (Ahora tiene w-8 h-8 para asegurar que sea un círculo perfecto) */}
+      {/* BOTÓN PARA COLAPSAR/EXPANDIR  */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute -right-4 top-10 bg-[#6A0032] rounded-full border border-white/20 hover:bg-[#850040] transition flex items-center justify-center z-50 w-8 h-8"
@@ -90,13 +90,9 @@ function SidebarMaster({ isCollapsed, setIsCollapsed }: SidebarProps) {
         {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
 
-      {/* CONTENEDOR INTERNO CON SCROLL */}
-      {/* Aquí es donde ocurre la magia: este div ocupa el 100% del alto (h-full) y hace el scroll, no el aside */}
       <div className="flex flex-col justify-between h-full p-5 overflow-y-auto custom-scrollbar">
         
-        {/* Contenedor Superior (Logo + Menú Principal) */}
         <div className="flex flex-col">
-          {/* LOGO E INFORMACIÓN INSTITUCIONAL */}
           <div className="mb-10 flex flex-col items-center overflow-hidden shrink-0">
             
             <img 
@@ -150,7 +146,7 @@ function SidebarMaster({ isCollapsed, setIsCollapsed }: SidebarProps) {
           </nav>
         </div>
 
-        {/* MENÚ INFERIOR (Configuración, etc.) */}
+        {/* MENÚ INFERIOR  */}
         <div className="mt-8 shrink-0"> 
           <div className="flex flex-col gap-2 mb-6">
             {bottomItems.map((item) => {

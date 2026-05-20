@@ -77,13 +77,10 @@ function SidebarUsuario({ isCollapsed, setIsCollapsed }: SidebarUsuarioProps) {
         {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
 
-      {/* TOP */}
       <div>
 
-        {/* LOGO E INFORMACIÓN INSTITUCIONAL */}
         <div className="mb-10 flex flex-col items-center overflow-hidden">
           
-          {/* AQUÍ ESTÁ EL CAMBIO: Usamos la variable logoIPN */}
           <img 
             src={logoIPN} 
             alt="Logo IPN" 
@@ -105,7 +102,6 @@ function SidebarUsuario({ isCollapsed, setIsCollapsed }: SidebarUsuarioProps) {
 
         </div>
 
-        {/* MENU */}
         <nav className="flex flex-col gap-2">
 
           {menuItems.map((item) => {
@@ -139,7 +135,6 @@ function SidebarUsuario({ isCollapsed, setIsCollapsed }: SidebarUsuarioProps) {
 
       </div>
 
-      {/* BOTTOM */}
       <div>
 
         <div className="flex flex-col gap-2 mb-6">

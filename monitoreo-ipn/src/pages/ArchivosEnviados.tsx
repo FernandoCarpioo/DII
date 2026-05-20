@@ -22,18 +22,14 @@ function ArchivosEnviados() {
   return (
     <div className="flex flex-col gap-6">
       
-      {/* CABECERA DE LA PÁGINA */}
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Archivos enviados</h1>
         <p className="text-sm text-gray-500 mt-1">Consulta los archivos que has enviado a grupos o usuarios.</p>
       </div>
 
-      {/* CONTENEDOR PRINCIPAL - GRID DIVIDIDO EN 3 COLUMNAS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* ==========================================
-            COLUMNA IZQUIERDA (Ocupa 2 de las 3 columnas)
-            ========================================== */}
+        
         <div className="lg:col-span-2 flex flex-col gap-6">
           
           {/* BARRA DE FILTROS */}

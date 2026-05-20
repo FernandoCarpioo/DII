@@ -115,7 +115,6 @@ function Equipos() {
         <p className="text-sm text-gray-500 mt-1">Visualiza el estado y la distribución de los equipos conectados.</p>
       </div>
 
-      {/* BARRA DE ESTADÍSTICAS */}
       <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
@@ -162,11 +161,9 @@ function Equipos() {
         </div>
       </div>
 
-      {/* ÁRBOL ORGANIZACIONAL */}
       <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
         <div className="min-w-[1000px] flex flex-col items-center">
           
-          {/* NODO RAÍZ (Dirección General) */}
           <div className="flex flex-col items-center">
             <div className="border border-gray-200 rounded-xl p-4 flex items-center gap-4 w-64 bg-white relative z-10">
               <div className="bg-[#fceef3] text-[#6A0032] p-2 rounded-lg">
@@ -178,7 +175,6 @@ function Equipos() {
               </div>
               <span className={`w-2 h-2 rounded-full absolute top-4 right-4 ${getStatusColor(organizacionData.raiz.estado)}`}></span>
             </div>
-            {/* Línea vertical central que baja de la raíz */}
             <div className="w-px h-8 bg-gray-300"></div>
           </div>
 
@@ -190,13 +186,10 @@ function Equipos() {
               return (
                 <div key={dept.id} className="relative flex flex-col items-center flex-1 px-2">
                   
-                  {/* TRUCO CSS: Las líneas horizontales superiores */}
-                  {/* Dibuja la línea izquierda si no es el primer elemento */}
                   {index !== 0 && <div className="absolute top-0 left-0 w-1/2 h-px bg-gray-300"></div>}
                   {/* Dibuja la línea derecha si no es el último elemento */}
                   {index !== organizacionData.departamentos.length - 1 && <div className="absolute top-0 right-0 w-1/2 h-px bg-gray-300"></div>}
                   
-                  {/* Línea vertical que conecta la línea horizontal con la tarjeta del departamento */}
                   <div className="w-px h-8 bg-gray-300 absolute top-0"></div>
 
                   {/* TARJETA DEL DEPARTAMENTO */}
@@ -236,7 +229,6 @@ function Equipos() {
                       </div>
                     ))}
 
-                    {/* Botón de "Ver X más" */}
                     {dept.ocultos > 0 && (
                       <button className="text-[10px] text-gray-500 font-medium flex items-center justify-center gap-1 mt-2 hover:text-gray-800">
                         Ver {dept.ocultos} más <ChevronDown size={12} />
@@ -252,7 +244,6 @@ function Equipos() {
         </div>
       </div>
 
-      {/* PIE DE PÁGINA (Leyenda) */}
       <div className="flex justify-between items-center text-xs text-gray-500 px-2 mt-2">
         <div className="flex gap-6">
           <span className="font-medium text-gray-600">Estado del equipo:</span>

@@ -19,12 +19,9 @@ function AppRouter() {
     <BrowserRouter>
       <Routes>
 
-        {/* LOGIN - Ruta pública, no lleva layout */}
         <Route path="/login" element={<Login />} />
 
-        {/* =========================================
-            RUTAS DEL ADMINISTRADOR
-            ========================================= */}
+        {/* RUTAS ADMINISTRADOR */}
         <Route element={<MainLayout rol="administrador" />}>
           <Route 
             path="/" 
@@ -52,9 +49,7 @@ function AppRouter() {
           />
         </Route>
 
-        {/* =========================================
-            RUTAS DEL ANALISTA / USUARIO
-            ========================================= */}
+        {/* RUTAS USUARIO */}
         <Route element={<MainLayout rol="usuario" />}>
           <Route 
             path="/user" 

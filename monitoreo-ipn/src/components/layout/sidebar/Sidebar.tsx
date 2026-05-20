@@ -150,7 +150,7 @@ function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           </nav>
         </div>
 
-        {/* MENÚ INFERIOR (Configuración, etc.) */}
+        {/* MENÚ INFERIOR  */}
         <div className="mt-8 shrink-0"> 
           <div className="flex flex-col gap-2 mb-6">
             {bottomItems.map((item) => {

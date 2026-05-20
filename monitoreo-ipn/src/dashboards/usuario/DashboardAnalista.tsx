@@ -63,10 +63,8 @@ function DashboardAnalista() {
 
       </div>
 
-      {/* CONTENT */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-8">
 
-        {/* LEFT */}
         <div className="xl:col-span-8 space-y-6">
 
           {/* CARD GRUPO */}
@@ -137,7 +135,6 @@ function DashboardAnalista() {
 
           </div>
 
-          {/* ACTIVIDAD */}
           <div className="bg-white rounded-3xl shadow-sm border p-6">
 
             <h2 className="text-xl font-bold mb-6">
@@ -212,7 +209,6 @@ function DashboardAnalista() {
 
         </div>
 
-        {/* RIGHT CHAT */}
         <div className="xl:col-span-4">
 
           <div className="bg-white rounded-3xl shadow-sm border h-full p-6 flex flex-col">
