@@ -11,6 +11,8 @@ import Equipos from "../pages/Equipos"
 import Configuracion from "../pages/Configuracion"
 import ArchivosEnviados from "../pages/ArchivosEnviados"
 import Impresiones from "../pages/Impresiones"
+import Tickets from "../pages/Tickets"
+import Tareas from "../pages/Pendientes"
 
 import Login from "../pages/Login"
 
@@ -44,6 +46,10 @@ function AppRouter() {
             element={<ArchivosEnviados />} 
           />
           <Route 
+            path="/Tickets" 
+            element={<Tickets />} 
+          />
+          <Route 
             path="/impresiones" 
             element={<Impresiones />} 
           />
@@ -56,6 +62,7 @@ function AppRouter() {
             element={<DashboardAnalista />} 
           />
               <Route path="/user/equipos" element={<Equipos />} /> 
+              <Route path="/user/pendientes" element={<Tareas />} /> 
         </Route>
 
       </Routes>

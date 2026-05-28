@@ -5,6 +5,7 @@ import Sidebar from "../components/layout/sidebar/Sidebar"
 import Header from "../components/layout/Header"
 import SidebarUsuario from "../components/layout/sidebar/SidebarUsuario"
 
+
 // Definimos que el layout puede recibir el rol
 interface MainLayoutProps {
   rol?: 'administrador' | 'usuario';

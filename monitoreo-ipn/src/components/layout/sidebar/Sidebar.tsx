@@ -14,7 +14,8 @@ import {
   LogOut,
   House,
   ChevronLeft,
-  ChevronRight
+  ChevronRight, 
+  Tickets
 } from "lucide-react"
 
 import logoIPN from "../../../assets/logo-ipn.png"
@@ -59,6 +60,13 @@ function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       path: "/equipos",
       icon: Monitor
     },
+
+    {
+      name: "Tickets",
+      path: "/Tickets",
+      icon: Tickets
+    },
+    
   ]
 
   const bottomItems = [

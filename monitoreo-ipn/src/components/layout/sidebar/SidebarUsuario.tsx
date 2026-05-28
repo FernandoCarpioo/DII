@@ -40,7 +40,7 @@ function SidebarUsuario({ isCollapsed, setIsCollapsed }: SidebarUsuarioProps) {
     },
     {
       name: "Pendientes",
-      path: "/Pendientes",
+      path: "/user/pendientes",
       icon: NotebookTabs
     }
   ]
