@@ -7,12 +7,14 @@ import DashboardAnalista from "../dashboards/usuario/DashboardAnalista"
 
 import MisGrupos from "../pages/MisGrupos"
 import CrearGrupos from "../pages/CrearGrupos"
+import GruposUsuario from "../pages/GruposUsuario"
 import Equipos from "../pages/Equipos"
 import Configuracion from "../pages/Configuracion"
 import ArchivosEnviados from "../pages/ArchivosEnviados"
 import Impresiones from "../pages/Impresiones"
 import Tickets from "../pages/Tickets"
 import Tareas from "../pages/Pendientes"
+import Mensajes from "../pages/Mensajes"
 
 import Login from "../pages/Login"
 
@@ -23,46 +25,33 @@ function AppRouter() {
 
         <Route path="/login" element={<Login />} />
 
-        {/* RUTAS ADMINISTRADOR */}
+        {/* ======================================= */}
+        {/* RUTAS ADMINISTRADOR                     */}
+        {/* ======================================= */}
         <Route element={<MainLayout rol="administrador" />}>
-          <Route 
-            path="/" 
-            element={<DashboardAdministrador />} 
-          />
-          <Route 
-            path="/MisGrupos" 
-            element={<MisGrupos />} 
-          />
-          <Route 
-            path="/equipos" 
-            element={<Equipos />} 
-          />
-          <Route 
-            path="/configuracion" 
-            element={<Configuracion />} 
-          />
-           <Route 
-            path="/ArchivosEnviados" 
-            element={<ArchivosEnviados />} 
-          />
-          <Route 
-            path="/Tickets" 
-            element={<Tickets />} 
-          />
-          <Route 
-            path="/impresiones" 
-            element={<Impresiones />} 
-          />
+          <Route path="/" element={<DashboardAdministrador />} />
+          <Route path="/MisGrupos" element={<MisGrupos />} />
+          <Route path="/equipos" element={<Equipos />} />
+          <Route path="/configuracion" element={<Configuracion />} />
+          <Route path="/ArchivosEnviados" element={<ArchivosEnviados />} />
+          <Route path="/Tickets" element={<Tickets />} />
+          <Route path="/impresiones" element={<Impresiones />} />
+          
+          {/* Mensajes para Administrador */}
+          <Route path="/mensajes" element={<Mensajes />} /> 
         </Route>
 
-        {/* RUTAS USUARIO */}
+        {/* ======================================= */}
+        {/* RUTAS USUARIO                           */}
+        {/* ======================================= */}
         <Route element={<MainLayout rol="usuario" />}>
-          <Route 
-            path="/user" 
-            element={<DashboardAnalista />} 
-          />
-              <Route path="/user/equipos" element={<Equipos />} /> 
-              <Route path="/user/pendientes" element={<Tareas />} /> 
+          <Route path="/user" element={<DashboardAnalista />} />
+          <Route path="/user/equipos" element={<Equipos />} /> 
+          <Route path="/user/pendientes" element={<Tareas />} /> 
+          <Route path="/user/grupos" element={<GruposUsuario />} /> 
+          
+          {/* Mensajes para Usuario Analista */}
+          <Route path="/user/mensajes" element={<Mensajes />} /> 
         </Route>
 
       </Routes>

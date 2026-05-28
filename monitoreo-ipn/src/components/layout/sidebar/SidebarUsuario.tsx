@@ -30,12 +30,12 @@ function SidebarUsuario({ isCollapsed, setIsCollapsed }: SidebarUsuarioProps) {
     },
     {
       name: "Mis Grupos",
-      path: "/MisGrupos",
+      path: "/user/grupos",
       icon: Users
     },
     {
       name: "Mensajes",
-      path: "/mensajes",
+      path: "/user/mensajes",
       icon: MessageCircle
     },
     {
@@ -90,17 +90,16 @@ function SidebarUsuario({ isCollapsed, setIsCollapsed }: SidebarUsuarioProps) {
           />
 
           {!isCollapsed && (
-            <div className="text-center transition-opacity duration-300">
-              <h1 className="text-xl font-bold whitespace-nowrap">
-                MONITOREO IPN
-              </h1>
-              <p className="text-[11px] text-gray-300 mt-1 whitespace-nowrap tracking-wider">
-                SISTEMA DE GESTIÓN
-              </p>
-            </div>
-          )}
-
-        </div>
+              <div className="text-center transition-opacity duration-300">
+                <h1 className="text-xl font-bold whitespace-nowrap">
+                  IPN Workspace
+                </h1>
+                <p className="text-[11px] text-gray-300 mt-1 whitespace-nowrap tracking-wider">
+                Instituto Politécnico Nacional           
+                </p>
+              </div>
+            )}
+          </div>
 
         <nav className="flex flex-col gap-2">
 

@@ -40,11 +40,6 @@ function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       icon: Users
     },
     {
-      name: "Bloqueos y permisos",
-      path: "/bloqueos",
-      icon: ShieldAlert
-    },
-    {
       name: "Archivos enviados",
       path: "/ArchivosEnviados",
       icon: Folder
@@ -118,10 +113,10 @@ function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             {!isCollapsed && (
               <div className="text-center transition-opacity duration-300">
                 <h1 className="text-xl font-bold whitespace-nowrap">
-                  MONITOREO IPN
+                  IPN Workspace
                 </h1>
                 <p className="text-[11px] text-gray-300 mt-1 whitespace-nowrap tracking-wider">
-                  Sistema de Gestión
+                Instituto Politécnico Nacional           
                 </p>
               </div>
             )}
