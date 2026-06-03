@@ -1,262 +1,130 @@
-import { 
-  Monitor, 
-  Calculator, 
-  Users, 
-  Server, 
-  PieChart, 
-  GraduationCap, 
-  ChevronDown, 
-  RefreshCcw 
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Monitor, RefreshCcw, Loader2 } from "lucide-react";
 
-// 1. LA BASE DE DATOS MOCK (Esto vendrá de tu API en el futuro)
-const organizacionData = {
-  raiz: {
-    nombre: "Dirección General",
-    equipos: 1,
-    estado: "encendido"
-  },
-  departamentos: [
-    {
-      id: "contaduria",
-      nombre: "Departamento de Contaduría",
-      equiposTotales: 8,
-      icon: Calculator,
-      estadoGlobal: "encendido",
-      colorIcono: "text-[#6A0032]", // Guinda IPN
-      bgIcono: "bg-[#fceef3]",
-      equipos: [
-        { id: "PC-CON-01", ubi: "Oficina 101", estado: "encendido" },
-        { id: "PC-CON-02", ubi: "Oficina 102", estado: "encendido" },
-        { id: "PC-CON-03", ubi: "Oficina 103", estado: "apagado" },
-      ],
-      ocultos: 5
-    },
-    {
-      id: "rrhh",
-      nombre: "Departamento de Recursos Humanos",
-      equiposTotales: 6,
-      icon: Users,
-      estadoGlobal: "encendido",
-      colorIcono: "text-[#6A0032]",
-      bgIcono: "bg-[#fceef3]",
-      equipos: [
-        { id: "PC-RH-01", ubi: "Oficina 201", estado: "encendido" },
-        { id: "PC-RH-02", ubi: "Oficina 202", estado: "encendido" },
-        { id: "PC-RH-03", ubi: "Oficina 203", estado: "encendido" },
-      ],
-      ocultos: 3
-    },
-    {
-      id: "sistemas",
-      nombre: "Departamento de Sistemas",
-      equiposTotales: 10,
-      icon: Server,
-      estadoGlobal: "encendido",
-      colorIcono: "text-[#6A0032]",
-      bgIcono: "bg-[#fceef3]",
-      equipos: [
-        { id: "PC-SIS-01", ubi: "Laboratorio 1", estado: "encendido" },
-        { id: "PC-SIS-02", ubi: "Laboratorio 2", estado: "encendido" },
-        { id: "PC-SIS-03", ubi: "Laboratorio 3", estado: "encendido" },
-      ],
-      ocultos: 7
-    },
-    {
-      id: "planeacion",
-      nombre: "Departamento de Planeación",
-      equiposTotales: 5,
-      icon: PieChart,
-      estadoGlobal: "apagado",
-      colorIcono: "text-[#6A0032]",
-      bgIcono: "bg-[#fceef3]",
-      equipos: [
-        { id: "PC-PLA-01", ubi: "Oficina 301", estado: "apagado" },
-        { id: "PC-PLA-02", ubi: "Oficina 302", estado: "apagado" },
-        { id: "PC-PLA-03", ubi: "Oficina 403", estado: "sin-conexion" },
-      ],
-      ocultos: 2
-    },
-    {
-      id: "escolares",
-      nombre: "Departamento de Servicios Escolares",
-      equiposTotales: 3,
-      icon: GraduationCap,
-      estadoGlobal: "apagado",
-      colorIcono: "text-[#6A0032]",
-      bgIcono: "bg-[#fceef3]",
-      equipos: [
-        { id: "PC-SE-01", ubi: "Oficina 401", estado: "apagado" },
-        { id: "PC-SE-02", ubi: "Oficina 402", estado: "apagado" },
-        { id: "PC-SE-03", ubi: "Oficina 403", estado: "apagado" },
-      ],
-      ocultos: 0
-    }
-  ]
-};
+interface PC {
+  id: string;
+  ubi: string;
+  estado: "encendido" | "apagado" | "sin-conexion" | string;
+}
 
-// Función auxiliar para los colores de estado
-const getStatusColor = (estado: string) => {
-  switch(estado) {
-    case 'encendido': return 'bg-green-500';
-    case 'apagado': return 'bg-red-500';
-    case 'sin-conexion': return 'bg-gray-400';
-    default: return 'bg-gray-200';
-  }
-};
+interface Departamento {
+  id: string;
+  nombre: string;
+  equiposTotales: number;
+  estadoGlobal: string;
+  equipos: PC[];
+  ocultos: number;
+}
 
 function Equipos() {
+  const [data, setData] = useState<Departamento[]>([]);
+  const [totals, setTotals] = useState({ total: 0, on: 0, off: 0, disconnected: 0 });
+  const [loading, setLoading] = useState(true);
+
+  const fetchEquiposTree = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:3000/api/infrastructure/devices", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const resData = await res.json();
+      setData(resData.departamentos || []);
+      setTotals(resData.totales || { total: 0, on: 0, off: 0, disconnected: 0 });
+    } catch (err) {
+      console.error("Error en topología de red:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEquiposTree();
+  }, []);
+
+  const getStatusColor = (estado: string) => {
+    switch(estado) {
+      case 'encendido': return 'bg-green-500';
+      case 'apagado': return 'bg-red-500';
+      default: return 'bg-gray-400';
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-6 w-full">
-      
-      {/* CABECERA */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Equipos</h1>
-        <p className="text-sm text-gray-500 mt-1">Visualiza el estado y la distribución de los equipos conectados.</p>
+    <div className="flex flex-col gap-6 w-full animate-in fade-in duration-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-800">Topología de Equipos</h1>
+          <p className="text-sm text-gray-500 mt-1">Monitoreo del parque computacional conectado a la red institucional.</p>
+        </div>
+        <button onClick={fetchEquiposTree} className="h-12 bg-white border border-[#6A0032] text-[#6A0032] px-5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-pink-50 transition shadow-xs">
+          <RefreshCcw size={16} /> Actualizar nodos
+        </button>
       </div>
 
-      <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-8">
+      {/* METRICAS TOTALES */}
+      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-wrap items-center justify-between gap-6">
+        <div className="flex flex-wrap items-center gap-8">
           <div className="flex items-center gap-3">
-            <div className="bg-red-50 p-2 rounded-lg text-[#6A0032]">
-              <Monitor size={20} />
-            </div>
+            <div className="bg-pink-50 p-3 rounded-2xl text-[#6A0032]"><Monitor size={22} /></div>
             <div>
-              <p className="text-lg font-bold text-gray-800">32</p>
-              <p className="text-xs text-gray-500">Equipos totales</p>
+              <p className="text-2xl font-bold text-gray-800">{loading ? "..." : totals.total}</p>
+              <p className="text-xs text-gray-400 font-medium">Inventariados</p>
             </div>
           </div>
-          
-          <div className="h-8 w-px bg-gray-200"></div>
-          
+          <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
           <div>
-            <p className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span> 24
-            </p>
-            <p className="text-xs text-gray-500">Encendidos</p>
+            <p className="text-xl font-bold text-gray-800 flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-green-500"></span> {loading ? "..." : totals.on}</p>
+            <p className="text-xs text-gray-400 font-medium">Activos</p>
           </div>
-          
           <div>
-            <p className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-500"></span> 8
-            </p>
-            <p className="text-xs text-gray-500">Apagados</p>
+            <p className="text-xl font-bold text-gray-800 flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-500"></span> {loading ? "..." : totals.off}</p>
+            <p className="text-xs text-gray-400 font-medium">Apagados</p>
           </div>
-
-          <div>
-            <p className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-gray-400"></span> 0
-            </p>
-            <p className="text-xs text-gray-500">Sin conexión</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <select className="border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white outline-none focus:border-[#6A0032] min-w-[200px]">
-            <option>Todos los grupos</option>
-          </select>
-          <button className="bg-white border border-[#6A0032] text-[#6A0032] px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-red-50 transition">
-            <RefreshCcw size={16} /> Actualizar estado
-          </button>
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
-        <div className="min-w-[1000px] flex flex-col items-center">
-          
-          <div className="flex flex-col items-center">
-            <div className="border border-gray-200 rounded-xl p-4 flex items-center gap-4 w-64 bg-white relative z-10">
-              <div className="bg-[#fceef3] text-[#6A0032] p-2 rounded-lg">
-                <Monitor size={24} />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold text-gray-800">{organizacionData.raiz.nombre}</h3>
-                <p className="text-xs text-gray-500">{organizacionData.raiz.equipos} equipo</p>
-              </div>
-              <span className={`w-2 h-2 rounded-full absolute top-4 right-4 ${getStatusColor(organizacionData.raiz.estado)}`}></span>
-            </div>
-            <div className="w-px h-8 bg-gray-300"></div>
-          </div>
-
-          {/* DEPARTAMENTOS Y SUS EQUIPOS */}
-          <div className="flex justify-center w-full">
-            {organizacionData.departamentos.map((dept, index) => {
-              const IconoDept = dept.icon;
-              
-              return (
+      {/* ÁRBOL DE RED */}
+      <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm overflow-x-auto">
+        {loading ? (
+          <div className="flex justify-center items-center py-16 text-gray-400 gap-2"><Loader2 className="animate-spin text-[#6A0032]"/> Mapeando directorios activos...</div>
+        ) : (
+          <div className="min-w-[1000px] flex flex-col items-center">
+            <div className="flex justify-center w-full">
+              {data.map((dept, index) => (
                 <div key={dept.id} className="relative flex flex-col items-center flex-1 px-2">
-                  
-                  {index !== 0 && <div className="absolute top-0 left-0 w-1/2 h-px bg-gray-300"></div>}
-                  {/* Dibuja la línea derecha si no es el último elemento */}
-                  {index !== organizacionData.departamentos.length - 1 && <div className="absolute top-0 right-0 w-1/2 h-px bg-gray-300"></div>}
-                  
-                  <div className="w-px h-8 bg-gray-300 absolute top-0"></div>
-
-                  {/* TARJETA DEL DEPARTAMENTO */}
-                  <div className="border border-gray-200 rounded-xl p-3 flex flex-col items-center gap-2 w-full max-w-[220px] bg-white mt-8 relative z-10 shadow-sm">
+                  <div className="border border-gray-100 rounded-2xl p-4 flex flex-col items-center gap-2 w-full max-w-[220px] bg-white relative z-10 shadow-xs">
                     <div className="flex items-start gap-3 w-full">
-                      <div className={`${dept.bgIcono} ${dept.colorIcono} p-2 rounded-lg shrink-0`}>
-                        <IconoDept size={18} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xs font-bold text-gray-800 leading-tight">{dept.nombre}</h3>
-                        <p className="text-[10px] text-gray-500 mt-0.5">{dept.equiposTotales} equipos</p>
+                      <div className="bg-pink-50 text-[#6A0032] p-2 rounded-xl shrink-0"><Monitor size={18} /></div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xs font-bold text-gray-800 truncate leading-tight">{dept.nombre}</h3>
+                        <p className="text-[10px] text-gray-400 mt-1 font-medium">{dept.equiposTotales} terminales</p>
                       </div>
                       <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${getStatusColor(dept.estadoGlobal)}`}></span>
                     </div>
                   </div>
 
-                  {/* LISTA DE EQUIPOS TIPO ÁRBOL (Sub-ramas) */}
                   <div className="w-full max-w-[220px] mt-4 flex flex-col relative">
-                    
-                    {/* Línea vertical que baja a lo largo de las PCs */}
-                    <div className="absolute left-[28px] top-0 bottom-8 w-px bg-gray-300"></div>
-
-                    {dept.equipos.map((equipo) => (
-                      <div key={equipo.id} className="relative flex items-center mb-3 ml-12">
-                        {/* Gancho horizontal hacia la PC */}
-                        <div className="absolute -left-[20px] w-[20px] h-px bg-gray-300"></div>
-                        
-                        {/* Tarjeta de la PC */}
-                        <div className="border border-gray-200 rounded-lg p-2 flex items-center gap-3 bg-white w-full shadow-sm">
-                          <Monitor size={14} className={getStatusColor(equipo.estado).replace('bg-', 'text-')} />
-                          <div className="flex-1">
-                            <h4 className="text-[11px] font-bold text-gray-800 leading-none">{equipo.id}</h4>
-                            <p className="text-[9px] text-gray-500 mt-1">{equipo.ubi}</p>
+                    <div className="absolute left-[20px] top-0 bottom-6 w-px bg-gray-200"></div>
+                    {dept.equipos?.map((equipo) => (
+                      <div key={equipo.id} className="relative flex items-center mb-3 ml-8">
+                        <div className="absolute -left-[12px] w-[12px] h-px bg-gray-200"></div>
+                        <div className="border border-gray-100 rounded-xl p-2.5 flex items-center gap-3 bg-white w-full shadow-2xs">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-gray-800 truncate leading-none">{equipo.id}</h4>
+                            <p className="text-[10px] text-gray-400 mt-1 truncate">{equipo.ubi}</p>
                           </div>
                           <span className={`w-1.5 h-1.5 rounded-full ${getStatusColor(equipo.estado)}`}></span>
                         </div>
                       </div>
                     ))}
-
-                    {dept.ocultos > 0 && (
-                      <button className="text-[10px] text-gray-500 font-medium flex items-center justify-center gap-1 mt-2 hover:text-gray-800">
-                        Ver {dept.ocultos} más <ChevronDown size={12} />
-                      </button>
-                    )}
                   </div>
-
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-
-        </div>
+        )}
       </div>
-
-      <div className="flex justify-between items-center text-xs text-gray-500 px-2 mt-2">
-        <div className="flex gap-6">
-          <span className="font-medium text-gray-600">Estado del equipo:</span>
-          <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500"></div> Encendido</span>
-          <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500"></div> Apagado</span>
-          <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-gray-400"></div> Sin conexión</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>Última actualización: 10:24 AM</span>
-          <RefreshCcw size={12} className="cursor-pointer hover:text-gray-800" />
-        </div>
-      </div>
-
     </div>
   );
 }

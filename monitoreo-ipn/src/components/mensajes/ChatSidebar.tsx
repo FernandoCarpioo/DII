@@ -1,46 +1,24 @@
-import { Search, Plus, Users } from "lucide-react"
+import { Search, Plus, Users, Loader2 } from "lucide-react"
 
-function ChatSidebar() {
-  const chats = [
-    {
-      name: "Analistas",
-      message: "María: No olviden enviar ...",
-      time: "10:24 AM",
-      unread: 0, // En tu imagen Analistas no tiene badge rojo
-      selected: true
-    },
-    {
-      name: "Carlos Ramírez",
-      message: "¿Puedes revisar el archivo?",
-      time: "09:15 AM",
-      unread: 1,
-      selected: false
-    },
-    {
-      name: "Proyecto 1",
-      message: "Se actualizó el cronograma...",
-      time: "Ayer",
-      unread: 0,
-      selected: false
-    },
-    {
-      name: "Redes Avanzadas",
-      message: "Jorge: Configuración aplicada...",
-      time: "Lun.",
-      unread: 0,
-      selected: false
-    },
-    {
-      name: "Sistemas Distribuidos",
-      message: "Se creó la tarea: Verificar respaldos",
-      time: "Lun.",
-      unread: 0,
-      selected: false
-    }
-  ]
+// Interfaz para mapear las conversaciones de la base de datos
+export interface ChatPreview {
+  id: string | number;
+  name: string;
+  lastMessage: string;
+  time: string;
+  unreadCount: number;
+}
 
+interface ChatSidebarProps {
+  chats: ChatPreview[];
+  selectedChatId: string | number | null;
+  onSelectChat: (id: string | number) => void;
+  loading?: boolean;
+}
+
+function ChatSidebar({ chats, selectedChatId, onSelectChat, loading = false }: ChatSidebarProps) {
   return (
-    <div className="h-full flex flex-col bg-white border-r border-gray-100 min-w-[320px]">
+    <div className="h-full flex flex-col bg-white border-r border-gray-100 min-w-[320px] w-full md:w-[350px] shrink-0">
       
       {/* HEADER */}
       <div className="p-5 border-b border-gray-100">
@@ -70,11 +48,23 @@ function ChatSidebar() {
 
       {/* LISTA CHATS */}
       <div className="flex-1 overflow-y-auto">
-        {chats.map((chat, index) => (
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-400 text-sm">
+            <Loader2 className="animate-spin text-[#6A0032]" size={20} />
+            <span>Sincronizando chats...</span>
+          </div>
+        )}
+
+        {!loading && chats.length === 0 && (
+          <p className="text-center py-10 text-sm text-gray-400">No hay canales de comunicación.</p>
+        )}
+
+        {!loading && chats.map((chat) => (
           <div
-            key={index}
-            className={`px-5 py-4 border-b border-gray-50 cursor-pointer transition flex items-center gap-4 hover:bg-gray-50 ${
-              chat.selected ? "bg-pink-50/40" : "bg-white"
+            key={chat.id}
+            onClick={() => onSelectChat(chat.id)}
+            className={`px-5 py-4 border-b border-gray-50 cursor-pointer transition flex items-center gap-4 hover:bg-gray-50/70 ${
+              selectedChatId === chat.id ? "bg-pink-50/40 border-r-4 border-r-[#6A0032]" : "bg-white"
             }`}
           >
             {/* ICON */}
@@ -88,7 +78,7 @@ function ChatSidebar() {
                 {chat.name}
               </h3>
               <p className="text-sm text-gray-500 mt-0.5 truncate">
-                {chat.message}
+                {chat.lastMessage || "Sin mensajes aún"}
               </p>
             </div>
 
@@ -98,12 +88,11 @@ function ChatSidebar() {
                 {chat.time}
               </span>
               
-              {chat.unread > 0 ? (
+              {chat.unreadCount > 0 ? (
                 <div className="min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center shadow-sm">
-                  {chat.unread}
+                  {chat.unreadCount}
                 </div>
               ) : (
-                // Espacio invisible para mantener la alineación cuando no hay notificaciones
                 <div className="h-5"></div>
               )}
             </div>

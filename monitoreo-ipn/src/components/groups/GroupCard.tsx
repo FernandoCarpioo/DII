@@ -10,28 +10,34 @@ import {
   CalendarDays
 } from "lucide-react"
 
-type Props = {
+// Exportamos la interfaz para que MisGrupos.tsx y GruposUsuario.tsx la puedan usar sin errores
+export interface GrupoData {
+  id?: string | number
   title: string
   description: string
   members: number
   status: string
-  // Agregamos las funciones como props opcionales
+}
+
+type Props = {
+  data: GrupoData
+  context?: "admin" | "user"
   onEdit?: () => void
   onDelete?: () => void
+  onManageCalendar?: () => void // Callback para abrir el asignador de tareas Teams
 }
 
 function GroupCard({
-  title,
-  description,
-  members,
-  status,
+  data,
+  context = "user",
   onEdit,
-  onDelete
+  onDelete,
+  onManageCalendar
 }: Props) {
+  const { title, description, members, status } = data
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Efecto para cerrar el menú si haces clic afuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -47,7 +53,6 @@ function GroupCard({
 
       {/* HEADER */}
       <div className="flex items-start justify-between">
-
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-pink-100 flex items-center justify-center shrink-0">
             <Users size={38} className="text-[#6A0032]" />
@@ -72,46 +77,36 @@ function GroupCard({
           </div>
         </div>
 
-        {/* MENÚ DE OPCIONES (CRUD) */}
-        <div className="relative" ref={menuRef}>
-          <button 
-            onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-gray-100 rounded-full transition text-gray-400 hover:text-gray-600"
-          >
-            <MoreVertical size={24} />
-          </button>
+        {/* MENÚ DE OPCIONES (CRUD) - SOLO ADMIN */}
+        {context === "admin" && (
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 hover:bg-gray-100 rounded-full transition text-gray-400 hover:text-gray-600"
+            >
+              <MoreVertical size={24} />
+            </button>
 
-          {/* DROPDOWN */}
-          {showMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-10 animate-in fade-in zoom-in-95 duration-100">
-              <button 
-                onClick={() => {
-                  setShowMenu(false)
-                  if(onEdit) onEdit()
-                }}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 text-gray-700 transition"
-              >
-                <Pencil size={16} className="text-gray-400" /> 
-                Editar grupo
-              </button>
-              
-              <button 
-                onClick={() => {
-                  setShowMenu(false)
-                  if(onDelete) onDelete()
-                }}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-3 transition"
-              >
-                <Trash2 size={16} /> 
-                Eliminar grupo
-              </button>
-            </div>
-          )}
-        </div>
-
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-10">
+                <button 
+                  onClick={() => { setShowMenu(false); if(onEdit) onEdit(); }}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 text-gray-700 transition"
+                >
+                  <Pencil size={16} className="text-gray-400" /> Editar grupo
+                </button>
+                <button 
+                  onClick={() => { setShowMenu(false); if(onDelete) onDelete(); }}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-3 transition"
+                >
+                  <Trash2 size={16} /> Eliminar grupo
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* LINE */}
       <div className="h-[1px] bg-gray-200 my-6" />
 
       {/* INFO */}
@@ -126,17 +121,18 @@ function GroupCard({
         <div className="flex items-center gap-3">
           <Shield size={20} className="text-gray-500" />
           <div>
-            <p className="font-semibold text-gray-800">Miembro</p>
+            <p className="font-semibold text-gray-800">
+              {context === "admin" ? "Administrador" : "Miembro"}
+            </p>
             <p className="text-gray-500 text-sm">Mi rol</p>
           </div>
         </div>
       </div>
 
-      {/* LINE */}
       <div className="h-[1px] bg-gray-200 my-6" />
 
       {/* ACTIONS */}
-      <div className="grid grid-cols-3 divide-x divide-gray-200">
+      <div className={`grid ${context === 'admin' ? 'grid-cols-3' : 'grid-cols-2'} divide-x divide-gray-200`}>
         <button className="flex flex-col items-center justify-center gap-2 py-3 hover:bg-gray-50 rounded-xl transition">
           <MessageCircle size={24} className="text-gray-600" />
           <div className="text-center">
@@ -153,13 +149,19 @@ function GroupCard({
           </div>
         </button>
 
-        <button className="flex flex-col items-center justify-center gap-2 py-3 hover:bg-gray-50 rounded-xl transition">
-          <CalendarDays size={24} className="text-gray-600" />
-          <div className="text-center">
-            <p className="font-semibold text-sm text-gray-800">Ver calendario</p>
-            <p className="text-xs text-gray-500">de actividades</p>
-          </div>
-        </button>
+        {context === "admin" && (
+          <button 
+            type="button"
+            onClick={onManageCalendar}
+            className="flex flex-col items-center justify-center gap-2 py-3 hover:bg-gray-50 rounded-xl transition text-gray-700"
+          >
+            <CalendarDays size={24} className="text-gray-600" />
+            <div className="text-center">
+              <p className="font-semibold text-sm text-gray-800">Asignar Tarea</p>
+              <p className="text-xs text-gray-500">estilo Teams</p>
+            </div>
+          </button>
+        )}
       </div>
 
     </div>
