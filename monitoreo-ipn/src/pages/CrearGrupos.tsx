@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { 
   Crown, 
   User as UserIcon, 
@@ -7,55 +7,110 @@ import {
   Search, 
   Filter, 
   Briefcase,
-  X 
+  X,
+  RefreshCw 
 } from "lucide-react"
 import Swal from "sweetalert2"
 
-const mockEmpleadosBase = [
-  { id: "u2", name: "María C.", depto: "Contaduría", puesto: "Analista Financiero" },
-  { id: "u3", name: "Luis H.", depto: "Sistemas", puesto: "Administrador de Red" },
-  { id: "u4", name: "Juan P.", depto: "Sistemas", puesto: "Desarrollador" },
-  { id: "u5", name: "Carlos R.", depto: "Recursos Humanos", puesto: "Coordinador" },
-  { id: "u6", name: "Ana G.", depto: "Contaduría", puesto: "Auditor" },
-  { id: "u7", name: "Fernanda M.", depto: "Dirección", puesto: "Asistente Ejecutivo" },
-  { id: "u8", name: "Roberto T.", depto: "Sistemas", puesto: "Soporte Técnico" }
-]
-
 interface CrearGruposProps {
-  onGrupoCreado: (grupo: { title: string; description: string; members: number; status: string }) => void;
+  grupoInicial?: any; // 
+  onGrupoCreado: (grupo: any) => void;
   onCancelar: () => void;
 }
 
-function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
+function CrearGrupos({ grupoInicial, onGrupoCreado, onCancelar }: CrearGruposProps) {
+  // 1. ESTADOS
   const [nombreGrupo, setNombreGrupo] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [tipo, setTipo] = useState("permanente")
-  const [integrantes, setIntegrantes] = useState<string[]>([])
+  // Forzamos a que el estado guarde puramente números
+  const [integrantes, setIntegrantes] = useState<number[]>([])
+  
+  const [empleados, setEmpleados] = useState<any[]>([])
+  const [loadingUsuarios, setLoadingUsuarios] = useState(true)
 
   const [busquedaNombre, setBusquedaNombre] = useState("")
   const [filtroDepto, setFiltroDepto] = useState("Todos")
   const [filtroPuesto, setFiltroPuesto] = useState("Todos")
 
-  const departamentosUnicos = ["Todos", ...Array.from(new Set(mockEmpleadosBase.map(e => e.depto)))]
-  const puestosUnicos = ["Todos", ...Array.from(new Set(mockEmpleadosBase.map(e => e.puesto)))]
+ // IDs ocultos por defecto
+  const MI_ID = Number(localStorage.getItem("userId"));
+  const SUPERADMIN_HECTOR = 1;
+  const SUPERADMIN_IT = 5;
 
-  const empleadosFiltrados = mockEmpleadosBase.filter(empleado => {
-    if (integrantes.includes(empleado.id)) return false;
-    const coincideNombre = empleado.name.toLowerCase().includes(busquedaNombre.toLowerCase())
-    const coincideDepto = filtroDepto === "Todos" || empleado.depto === filtroDepto
-    const coincidePuesto = filtroPuesto === "Todos" || empleado.puesto === filtroPuesto
-    return coincideNombre && coincideDepto && coincidePuesto
+ // 2. EFECTO PARA RELLENAR DATOS SI ESTAMOS EDITANDO
+  useEffect(() => {
+    if (grupoInicial) {
+      setNombreGrupo(grupoInicial.nombre || "")
+      setDescripcion(grupoInicial.descripcion || "")
+      setTipo(grupoInicial.estado === "Temporal" ? "temporal" : "permanente")
+      
+      // Limpiamos la data que manda Postgres para evitar errores y fantasmas
+      let integrantesBase = grupoInicial.integrantes || [];
+      if (typeof integrantesBase === "string") {
+        // Si Postgres lo mandó como texto "{1,2}", lo limpiamos
+        integrantesBase = integrantesBase.replace(/[{}]/g, "").split(",").filter(Boolean);
+      }
+
+      // En el useEffect de edición:
+      const integrantesVisibles = integrantesBase
+        .map((id: any) => Number(id))
+        .filter((id: number) => !isNaN(id) && id !== 0 && id !== MI_ID && id !== SUPERADMIN_HECTOR && id !== SUPERADMIN_IT);
+        
+      setIntegrantes(integrantesVisibles) 
+    }
+  }, [grupoInicial, MI_ID])
+
+  const fetchUsuarios = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/usuarios")
+      const data = await response.json()
+      setEmpleados(data)
+    } catch (error) {
+      console.error(error)
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudieron cargar los usuarios"
+      })
+    } finally {
+      setLoadingUsuarios(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsuarios()
+  }, [])
+
+  const departamentosUnicos = ["Todos", ...Array.from(new Set(empleados.map(e => e.depto)))]
+  const puestosUnicos = ["Todos", ...Array.from(new Set(empleados.map(e => e.puesto)))]
+
+  // En el filtro de empleados (para que no salgan abajo):
+  const empleadosFiltrados = empleados.filter(empleado => {
+    const empId = Number(empleado.id);
+    if (integrantes.includes(empId) || empId === MI_ID || empId === SUPERADMIN_HECTOR || empId === SUPERADMIN_IT) return false;
+    // ... lo demás sigue igual
+    const nombreSeguro = empleado.name || ""; 
+    const coincideNombre = nombreSeguro.toLowerCase().includes(busquedaNombre.toLowerCase());
+    
+    const coincideDepto = filtroDepto === "Todos" || empleado.depto === filtroDepto;
+    const coincidePuesto = filtroPuesto === "Todos" || empleado.puesto === filtroPuesto;
+    
+    return coincideNombre && coincideDepto && coincidePuesto;
   })
 
-  const agregarMiembroALista = (userId: string) => {
+  // Convertimos todo a Número al agregar
+  const agregarMiembroALista = (userId: string | number) => {
+    const idNum = Number(userId);
     setIntegrantes(prev => {
-      if (prev.includes(userId)) return prev;
-      return [...prev, userId];
+      if (prev.includes(idNum)) return prev;
+      return [...prev, idNum];
     });
   }
 
-  const removerMiembro = (userId: string) => {
-    setIntegrantes(prev => prev.filter(id => id !== userId));
+  const removerMiembro = (userId: string | number) => {
+    const idNum = Number(userId);
+    setIntegrantes(prev => prev.filter(id => id !== idNum));
   }
 
   const handleDragStart = (e: React.DragEvent, userId: string) => {
@@ -68,19 +123,72 @@ function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
     if (userId) agregarMiembroALista(userId);
   }
 
-  const handleSubmitForm = (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (!nombreGrupo.trim()) {
-      Swal.fire({ icon: "error", title: "Faltan campos", text: "El nombre del equipo es obligatorio.", confirmButtonColor: "#6A0032" })
+      Swal.fire({
+        icon: "error",
+        title: "Faltan campos",
+        text: "El nombre del grupo es obligatorio"
+      })
       return
     }
 
-    onGrupoCreado({
-      title: nombreGrupo,
-      description: descripcion || "Sin descripción corta.",
-      members: integrantes.length + 1,
-      status: tipo === "permanente" ? "Activo" : "Temporal"
-    })
+    try {
+      const isEditing = !!grupoInicial;
+      const url = isEditing 
+        ? `http://localhost:3000/api/grupos/${grupoInicial.id}` 
+        : "http://localhost:3000/api/grupos";
+      const method = isEditing ? "PUT" : "POST";
+
+        const integrantesParaEnviar = Array.from(new Set([
+          ...integrantes, 
+          MI_ID, 
+          SUPERADMIN_HECTOR, 
+          SUPERADMIN_IT
+        ]));
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nombre: nombreGrupo,
+          descripcion,
+          estado: tipo === "permanente" ? "Activo" : "Temporal",
+          integrantes: integrantesParaEnviar // Mandamos la lista combinada
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message)
+      }
+
+      await Swal.fire({
+        icon: "success",
+        title: isEditing ? "Grupo actualizado" : "Grupo creado",
+        timer: 1500,
+        showConfirmButton: false
+      })
+
+      onGrupoCreado({
+        title: nombreGrupo,
+        description: descripcion,
+        members: integrantesParaEnviar.length,
+        status: tipo === "permanente" ? "Activo" : "Temporal"
+      })
+
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message
+      })
+    }
   }
 
   return (
@@ -88,7 +196,9 @@ function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
       
       {/* FORMULARIO (5/12 col) */}
       <form onSubmit={handleSubmitForm} className="lg:col-span-5 bg-white p-6 rounded-2xl border border-gray-100 flex flex-col gap-4 shadow-xs">
-        <h3 className="text-base font-bold text-gray-800 border-b border-gray-50 pb-2">Propiedades del Grupo</h3>
+        <h3 className="text-base font-bold text-gray-800 border-b border-gray-50 pb-2">
+          {grupoInicial ? "Editar Propiedades" : "Propiedades del Grupo"}
+        </h3>
 
         <div>
           <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nombre del Equipo</label>
@@ -129,11 +239,15 @@ function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
             type="submit"
             className="flex-1 h-11 bg-[#6A0032] hover:bg-[#850040] text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition text-sm"
           >
-            <Save size={16} /> Guardar Equipo
+            {grupoInicial ? (
+              <><RefreshCw size={16} /> Actualizar</>
+            ) : (
+              <><Save size={16} /> Guardar Equipo</>
+            )}
           </button>
           <button
             type="button"
-            onClick={onCancelar}
+            onClick={onCancelar} 
             className="px-4 h-11 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold rounded-xl transition text-sm"
           >
             Cancelar
@@ -141,7 +255,6 @@ function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
         </div>
       </form>
 
-      {/* JERÁRQUICA + BUSCADOR (7/12 col) */}
       <div className="lg:col-span-7 flex flex-col gap-6">
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
           <h3 className="text-base font-bold text-gray-800 mb-3">Estructura del Equipo</h3>
@@ -151,19 +264,26 @@ function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
             onDrop={handleDrop}
             className="border-2 border-dashed border-gray-200 rounded-xl p-6 bg-gray-50/50 min-h-[160px] flex flex-col gap-4 items-center justify-center relative"
           >
+            {/* Etiqueta fija del creador para dar a entender que siempre pertenece */}
             <div className="bg-[#6A0032] text-white px-5 py-2 rounded-lg flex items-center gap-2 font-semibold text-xs">
-              <Crown size={14} className="text-yellow-400" /> Héctor (Tú)
+              <Crown size={14} className="text-yellow-400" /> Miembro Fijo (Tú)
             </div>
 
-            <div className="flex flex-wrap gap-2.5 justify-center w-full">
+          <div className="flex flex-wrap gap-2.5 justify-center w-full">
               {integrantes.map((id) => {
-                const emp = mockEmpleadosBase.find(e => e.id === id)
+                // Comparamos como texto para que sea 100% seguro
+                const emp = empleados.find(e => String(e.id) === String(id)) 
+                
+                // Buscamos 'name' o 'nombre' por si tu BD se llama diferente
+                const nombreEmpleado = emp?.name || emp?.nombre || "Cargando...";
+                const deptoEmpleado = emp?.depto || emp?.departamento || "...";
+
                 return (
                   <div key={id} className="bg-white border border-gray-200 text-gray-700 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-semibold">
                     <UserIcon size={12} className="text-gray-400" />
                     <div className="text-left">
-                      <p className="text-gray-800 leading-tight">{emp?.name}</p>
-                      <p className="text-[10px] text-gray-400">{emp?.depto}</p>
+                      <p className="text-gray-800 leading-tight">{nombreEmpleado}</p>
+                      <p className="text-[10px] text-gray-400">{deptoEmpleado}</p>
                     </div>
                     <button type="button" onClick={() => removerMiembro(id)} className="text-gray-400 hover:text-red-500 p-0.5 ml-0.5">
                       <X size={12} />
@@ -251,4 +371,4 @@ function CrearGrupos({ onGrupoCreado, onCancelar }: CrearGruposProps) {
   )
 }
 
-export default CrearGrupos;
+export default CrearGrupos

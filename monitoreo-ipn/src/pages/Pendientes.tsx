@@ -46,13 +46,11 @@ function Tareas() {
     fetchTareas();
   }, []);
 
-  // Filtro en tiempo real por búsqueda
   const filteredTasks = tasks.filter(t => 
     t.title.toLowerCase().includes(search.toLowerCase()) || 
     t.description.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Cálculos dinámicos de métricas en memoria para los StatCards
   const countByStatus = (status: string) => tasks.filter(t => t.status === status).length;
 
   const getBadge = (status: string) => {
@@ -72,7 +70,6 @@ function Tareas() {
         <p className="text-gray-500 mt-2 text-lg">Consulta y da seguimiento a las tareas operativas de tu entorno.</p>
       </div>
 
-      {/* METRICAS DIRECTAS DE LA BD */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5 mb-8">
         <StatCard title="Total de tareas" value={tasks.length} subtitle="Métricas globales" icon={ClipboardList} iconBg="bg-purple-100 text-purple-600" loading={loading} />
         <StatCard title="Pendientes" value={countByStatus("Pendiente")} subtitle="Por revisar" icon={Clock3} iconBg="bg-orange-100 text-orange-600" loading={loading} />
@@ -95,7 +92,6 @@ function Tareas() {
           </div>
         </div>
 
-        {/* HEADERS */}
         <div className="grid grid-cols-12 px-6 py-4 text-sm text-gray-400 font-semibold border-b border-gray-100 bg-gray-50/50">
           <div className="col-span-5">TAREA</div>
           <div className="col-span-3">GRUPO</div>
@@ -103,7 +99,6 @@ function Tareas() {
           <div className="col-span-2">ESTADO</div>
         </div>
 
-        {/* LISTADO */}
         {loading ? (
           <div className="flex justify-center items-center py-20 text-gray-400 gap-2"><Loader2 className="animate-spin text-[#6A0032]" /> Cargando tareas...</div>
         ) : filteredTasks.length === 0 ? (

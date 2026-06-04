@@ -1,94 +1,114 @@
--- 1. TABLA: ROLES
--- Define los privilegios dentro de la plataforma (administrador, usuario/analista)
+-- ============================================
+-- ROLES
+-- ============================================
+
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL UNIQUE, -- 'admin', 'user'
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion TEXT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. TABLA: USUARIOS
--- Almacena las credenciales y perfiles del personal de la DII
+-- ============================================
+-- USUARIOS
+-- ============================================
+
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE, -- Correo institucional @ipn.mx
-    password VARCHAR(255) NOT NULL,    -- Contraseña encriptada
-    puesto VARCHAR(100),                -- 'Analista de Red', 'Soporte Técnico', etc.
-    role_id INT REFERENCES roles(id) ON DELETE RESTRICT,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    puesto VARCHAR(100),
+    role_id INT NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
+    activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. TABLA: GRUPOS
--- Catálogo maestro de grupos de trabajo (antiguo y nuevo catálogo unificado)
+-- ============================================
+-- GRUPOS
+-- ============================================
+
 CREATE TABLE grupos (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL UNIQUE, -- 'Analistas', 'Redes Avanzadas', etc.
-    description TEXT,
-    ubicacion VARCHAR(150) DEFAULT 'DII', -- 'Edificio Central - Planta Alta'
-    status VARCHAR(20) DEFAULT 'Activo',  -- 'Activo', 'Inactivo', 'Temporal'
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    ubicacion VARCHAR(150) DEFAULT 'DII',
+    estado VARCHAR(20) DEFAULT 'Activo',
     fecha_creacion DATE DEFAULT CURRENT_DATE
 );
 
--- 4. TABLA INTERMEDIA: MIEMBROS_GRUPOS
--- Relación de muchos a muchos para saber qué analistas pertenecen a qué grupos
+-- ============================================
+-- MIEMBROS DE GRUPOS
+-- ============================================
+
 CREATE TABLE miembros_grupos (
     grupo_id INT REFERENCES grupos(id) ON DELETE CASCADE,
     usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
-    es_administrador BOOLEAN DEFAULT FALSE, -- Por si dentro de un grupo hay un líder
+    es_administrador BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (grupo_id, usuario_id)
 );
 
--- 5. TABLA: EQUIPOS (TERMINALES)
--- Inventario físico del parque computacional vinculado a la topología en árbol
+-- ============================================
+-- EQUIPOS
+-- ============================================
+
 CREATE TABLE equipos (
-    id VARCHAR(50) PRIMARY KEY, -- 'PC-SIS-01', 'PC-CON-02'
+    id VARCHAR(50) PRIMARY KEY,
     ubicacion VARCHAR(150) NOT NULL,
-    estado VARCHAR(30) DEFAULT 'apagado', -- 'encendido', 'apagado', 'sin-conexion'
-    grupo_id INT REFERENCES grupos(id) ON DELETE SET NULL, -- Departamento o entorno al que pertenece
+    estado VARCHAR(30) DEFAULT 'apagado',
+    grupo_id INT REFERENCES grupos(id) ON DELETE SET NULL,
     ultima_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 6. TABLA: TAREAS (FLUJO ESTILO TEAMS)
--- Almacena las actividades asignadas por el Admin a los grupos y visibles en Pendientes
+-- ============================================
+-- TAREAS
+-- ============================================
+
 CREATE TABLE tareas (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(150) NOT NULL,
-    description TEXT NOT NULL,
-    grupo_id INT REFERENCES grupos(id) ON DELETE CASCADE, -- Grupo entero asignado
-    date_limite DATE NOT NULL,                             -- Fecha de vencimiento
-    status VARCHAR(30) DEFAULT 'Pendiente',                -- 'Pendiente', 'En progreso', 'Completada', 'Vencida'
-    extra_info VARCHAR(100),                               -- 'Vence en 2 días', 'Completada el 19/05'
+    titulo VARCHAR(150) NOT NULL,
+    descripcion TEXT NOT NULL,
+    grupo_id INT REFERENCES grupos(id) ON DELETE CASCADE,
+    fecha_limite DATE NOT NULL,
+    estado VARCHAR(30) DEFAULT 'Pendiente',
+    extra_info VARCHAR(100),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. TABLA: HISTORIAL_SESIONES
--- Registro de logs de acceso diario requerido en el panel de Analista
+-- ============================================
+-- HISTORIAL DE SESIONES
+-- ============================================
+
 CREATE TABLE historial_sesiones (
     id SERIAL PRIMARY KEY,
     usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
-    evento VARCHAR(100) NOT NULL,       -- 'Inicio de Sesión Exitoso', 'Cierre Automatizado'
-    dispositivo VARCHAR(150) NOT NULL,  -- 'PC-SIS-02 (192.168.1.54)'
-    hora VARCHAR(50) NOT NULL,          -- 'Hoy — 10:24 AM' (o timestamp)
+    evento VARCHAR(100) NOT NULL,
+    dispositivo VARCHAR(150) NOT NULL,
+    hora VARCHAR(50) NOT NULL,
     fecha_registro DATE DEFAULT CURRENT_DATE
 );
 
--- 8. TABLA: TRABAJOS_IMPRESION
--- Spooler de auditoría de impresiones perimetrales
+-- ============================================
+-- IMPRESIONES
+-- ============================================
+
 CREATE TABLE trabajos_impresion (
     id SERIAL PRIMARY KEY,
     usuario_id INT REFERENCES usuarios(id) ON DELETE SET NULL,
-    impresora VARCHAR(100) NOT NULL,   -- 'HP LaserJet Pro M404dw'
-    ip_impresora VARCHAR(45) NOT NULL, -- '192.168.1.45'
-    archivo VARCHAR(255) NOT NULL,     -- 'Reporte_Mensual_Mayo.pdf'
-    tamano VARCHAR(30) NOT NULL,       -- '2.45 MB' o '6.25 GB'
-    estado VARCHAR(30) NOT NULL,       -- 'Completado', 'Bloqueado', 'En proceso'
+    impresora VARCHAR(100) NOT NULL,
+    ip_impresora VARCHAR(45) NOT NULL,
+    archivo VARCHAR(255) NOT NULL,
+    tamano VARCHAR(30) NOT NULL,
+    estado VARCHAR(30) NOT NULL,
     fecha_envio DATE DEFAULT CURRENT_DATE,
-    hora_envio VARCHAR(20) NOT NULL    -- '10:24 AM'
+    hora_envio VARCHAR(20) NOT NULL
 );
 
--- 9. TABLA: ARCHIVOS_ENVIADOS
--- Auditoría de distribución y envío de documentos compartidos globales
+-- ============================================
+-- ARCHIVOS ENVIADOS
+-- ============================================
+
 CREATE TABLE archivos_enviados (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
@@ -96,64 +116,173 @@ CREATE TABLE archivos_enviados (
     remitente_id INT REFERENCES usuarios(id) ON DELETE SET NULL,
     grupo_destino_id INT REFERENCES grupos(id) ON DELETE CASCADE,
     fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado VARCHAR(30) DEFAULT 'Enviado' -- 'Enviado', 'Bloqueado'
+    estado VARCHAR(30) DEFAULT 'Enviado'
 );
 
--- 10. TABLA: TICKETS
--- Mesa de ayuda institucional (Soporte DII) conectado al Dropzone de evidencias
+-- ============================================
+-- TICKETS
+-- ============================================
+
 CREATE TABLE tickets (
     id SERIAL PRIMARY KEY,
-    area VARCHAR(100) NOT NULL, -- Área/Departamento reportado
+    area VARCHAR(100) NOT NULL,
     equipo_id VARCHAR(50) REFERENCES equipos(id) ON DELETE SET NULL,
-    usuario_solicitante VARCHAR(150) NOT NULL,
-    description TEXT NOT NULL,
-    status VARCHAR(30) DEFAULT 'Abierto', -- 'Abierto', 'En proceso', 'Resuelto'
+
+    usuario_id INT NOT NULL REFERENCES usuarios(id),
+
+    descripcion TEXT NOT NULL,
+    estado VARCHAR(30) DEFAULT 'Abierto',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 11. TABLA: EVIDENCIAS_TICKETS
--- Guarda las rutas en servidor/bucket de los archivos JPG, PNG, PDF adjuntados en FileUpload
+-- ============================================
+-- EVIDENCIAS DE TICKETS
+-- ============================================
+
 CREATE TABLE evidencias_tickets (
     id SERIAL PRIMARY KEY,
     ticket_id INT REFERENCES tickets(id) ON DELETE CASCADE,
-    ruta_archivo VARCHAR(500) NOT NULL, -- URL o path del storage local/bucket
+    ruta_archivo VARCHAR(500) NOT NULL,
     nombre_original VARCHAR(255) NOT NULL,
     tamano_mb NUMERIC(5,2),
     fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ============================================
+-- DATOS INICIALES
+-- ============================================
 
--- ===========================================================================
--- INSERCIÓN DE DATOS INICIALES (SEMILLAS / SEEDS)
--- ===========================================================================
+INSERT INTO roles (nombre, descripcion)
+VALUES
+(
+    'admin',
+    'Administrador del sistema'
+),
+(
+    'user',
+    'Usuario operativo'
+);
 
--- Insertar Roles bases
-INSERT INTO roles (nombre, descripcion) VALUES 
-('admin', 'Administrador principal del ecosistema DII'),
-('user', 'Usuario analista con permisos operativos restringidos');
+-- ============================================
+-- GRUPOS INICIALES
+-- ============================================
 
--- Insertar Grupos iniciales (Antiguo catálogo estructurado)
-INSERT INTO grupos (nombre, description, status) VALUES 
-('Analistas', 'Análisis y revisión técnica de información institucional', 'Activo'),
-('Departamento de Contaduría', 'Área de contabilidad, nóminas y finanzas DII', 'Activo'),
-('Proyecto 1', 'Desarrollo del prototipo modular y entornos experimentales', 'Temporal'),
-('Redes Avanzadas', 'Administración de servidores y seguridad perimetral', 'Activo'),
-('Sistemas Distribuidos', 'Gestión de respaldos redundantes y almacenamiento', 'Inactivo');
+INSERT INTO grupos
+(
+    nombre,
+    descripcion,
+    estado
+)
+VALUES
+(
+    'Analistas',
+    'Análisis y revisión técnica',
+    'Activo'
+),
+(
+    'Departamento de Contaduría',
+    'Área financiera',
+    'Activo'
+),
+(
+    'Proyecto 1',
+    'Proyecto piloto',
+    'Temporal'
+),
+(
+    'Redes Avanzadas',
+    'Infraestructura y redes',
+    'Activo'
+),
+(
+    'Sistemas Distribuidos',
+    'Respaldos y almacenamiento',
+    'Activo'
+);
 
--- Insertar Usuarios Base de prueba (Contraseñas de ejemplo, recuerda aplicar hashing en producción)
-INSERT INTO usuarios (nombre, email, password, puesto, role_id) VALUES 
-('Héctor Administrador', 'hector.admin@ipn.mx', '123', 'Director de Monitoreo', 1),
-('Luis Hernández', 'luis@ipn.mx', '123', 'Analista de Red', 2),
-('María González', 'maria@ipn.mx', '123', 'Auditor de Finanzas', 2);
+-- ============================================
+-- USUARIOS DE PRUEBA
+-- ============================================
+-- Temporalmente usa hashes falsos.
+-- Después los reemplazaremos con bcrypt.
 
--- Vincular los usuarios a sus respectivos grupos de trabajo
-INSERT INTO miembros_grupos (grupo_id, usuario_id, es_administrador) VALUES 
-(1, 1, TRUE),  -- Héctor está en Analistas como líder
-(1, 2, FALSE), -- Luis está en Analistas como miembro
-(2, 3, FALSE); -- María está en Contaduría
+INSERT INTO usuarios
+(
+    username,
+    nombre,
+    email,
+    password_hash,
+    puesto,
+    role_id
+)
+VALUES
+(
+    'hector',
+    'Héctor Administrador',
+    'hector.admin@ipn.mx123',
+    'Administrador',
+    1
+),
+(
+    'luis',
+    'Luis Hernández',
+    'luis@ipn.mx',
+    '123',
+    'Analista de Red',
+    2
+),
+(
+    'maria',
+    'María Go',
+    'nzález',
+    'maria@ipn.mx',
+    '123',
+    'Auditor',
+    2
+);
 
--- Insertar un par de PCs para poblar el árbol de equipos inicial
-INSERT INTO equipos (id, ubicacion, estado, grupo_id) VALUES 
-('PC-CON-01', 'Oficina 101', 'encendido', 2),
-('PC-SIS-02', 'Laboratorio 2', 'encendido', 1),
-('PC-RH-01', 'Oficina 201', 'apagado', NULL);
+-- ============================================
+-- MIEMBROS DE GRUPOS
+-- ============================================
+
+INSERT INTO miembros_grupos
+(
+    grupo_id,
+    usuario_id,
+    es_administrador
+)
+VALUES
+(1,1,TRUE),
+(1,2,FALSE),
+(2,3,FALSE);
+
+-- ============================================
+-- EQUIPOS DE PRUEBA
+-- ============================================
+
+INSERT INTO equipos
+(
+    id,
+    ubicacion,
+    estado,
+    grupo_id
+)
+VALUES
+(
+    'PC-CON-01',
+    'Oficina 101',
+    'encendido',
+    2
+),
+(
+    'PC-SIS-02',
+    'Laboratorio 2',
+    'encendido',
+    1
+),
+(
+    'PC-RH-01',
+    'Oficina 201',
+    'apagado',
+    NULL
+);

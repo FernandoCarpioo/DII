@@ -91,7 +91,7 @@ function Equipos() {
         ) : (
           <div className="min-w-[1000px] flex flex-col items-center">
             <div className="flex justify-center w-full">
-              {data.map((dept, index) => (
+              {data.map((dept) => (
                 <div key={dept.id} className="relative flex flex-col items-center flex-1 px-2">
                   <div className="border border-gray-100 rounded-2xl p-4 flex flex-col items-center gap-2 w-full max-w-[220px] bg-white relative z-10 shadow-xs">
                     <div className="flex items-start gap-3 w-full">

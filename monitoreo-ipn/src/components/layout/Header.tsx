@@ -1,35 +1,22 @@
-import { Bell, ChevronDown, Search } from "lucide-react"
+import { Bell, ChevronDown } from "lucide-react"
 
 interface HeaderProps {
   usuario?: {
     name: string;
     role: string;
   };
-  notificationsCount?: number; // Propiedad para traer alertas dinámicas de la BD
-  onSearch?: (query: string) => void; // Handler opcional para capturar búsquedas en tiempo real
+  notificationsCount?: number; 
 }
 
-function Header({ usuario, notificationsCount = 0, onSearch }: HeaderProps) {
+function Header({ usuario, notificationsCount = 0 }: HeaderProps) {
   // Manejo de valores reales devueltos por tu API auth
   const nombreUsuario = usuario?.name || "Usuario de Red"
   const rolUsuario = usuario?.role === "admin" || usuario?.role === "administrador" ? "Administrador" : "Analista"
   const inicial = nombreUsuario.charAt(0).toUpperCase()
 
   return (
-    <header className="bg-white h-20 rounded-2xl px-6 flex items-center justify-between shadow-sm border border-gray-100 w-full">
-
-      {/* SECCIÓN IZQUIERDA: BÚSQUEDA OPERATIVA */}
-      <div className="flex items-center gap-4">
-        <div className="bg-gray-100 rounded-xl px-4 py-2 flex items-center gap-3 w-[350px] focus-within:ring-2 focus-within:ring-[#6A0032] transition">
-          <Search size={18} className="text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por grupo, dispositivo o log..."
-            className="bg-transparent outline-none text-sm w-full text-gray-700 placeholder-gray-400"
-            onChange={(e) => onSearch?.(e.target.value)}
-          />
-        </div>
-      </div>
+    // CAMBIO CLAVE AQUÍ: Cambiamos justify-between por justify-end
+    <header className="bg-white h-20 rounded-2xl px-6 flex items-center justify-end shadow-sm border border-gray-100 w-full">
 
       {/* SECCIÓN DERECHA: ALERTAS Y SESIÓN ACTIVA */}
       <div className="flex items-center gap-6">

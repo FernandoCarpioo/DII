@@ -8,38 +8,21 @@ function MainLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [usuario, setUsuario] = useState({ name: "Usuario", role: "user" });
 
-  // Efecto para leer la sesión real que guardó el Login en la Base de Datos
-{/*  useEffect(() => {
-    const dbRole = localStorage.getItem("userRole") || "user";
-    const dbName = localStorage.getItem("userName") || "Personal DII";
-    
-    setUsuario({
-      name: dbName,
-      role: dbRole
-    });
-  }, []);*/}
+ useEffect(() => {
 
-  useEffect(() => {
-    // --- LÍNEAS DE CONTROL LOCAL PARA DESARROLLO ---
-    // Descomenta la opción del rol que quieras evaluar visualmente:
-    
-    // Para probar la interfaz del Administrador:
-    localStorage.setItem("userRole", "admin");
-    localStorage.setItem("userName", "Héctor (Modo Local)");
+  const dbRole =
+    localStorage.getItem("userRole") || "user";
 
-    // Para probar la interfaz del Analista:
-    // localStorage.setItem("userRole", "user");
-    // localStorage.setItem("userName", "Luis (Modo Local)");
-    // ----------------================---------------
+  const dbName =
+    localStorage.getItem("userName") || "Personal DII";
 
-    const dbRole = localStorage.getItem("userRole") || "user";
-    const dbName = localStorage.getItem("userName") || "Personal DII";
-    
-    setUsuario({
-      name: dbName,
-      role: dbRole
-    });
-  }, []);
+  setUsuario({
+    name: dbName,
+    role: dbRole
+  });
+
+}, []);
+
 
   return (
     <div className="bg-[#f5f6fa] min-h-screen flex">

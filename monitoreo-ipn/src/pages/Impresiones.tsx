@@ -30,10 +30,36 @@ function Impresiones() {
         setTrabajos(data || []);
       } catch (err) {
         console.error(err);
-      } { setLoading(false); }
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchSpooler();
   }, []);
+
+  // Función para manejar el desbloqueo
+  const handleDesbloquear = async (id: string | number) => {
+    // Aquí puedes agregar un SweetAlert2 para confirmar antes de desbloquear
+    
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:3000/api/printing/jobs/${id}/unblock`, {
+        method: 'POST',
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        // Actualizamos el estado local para que UI cambie inmediatamente
+        setTrabajos(prev => prev.map(trabajo => 
+          trabajo.id === id ? { ...trabajo, estado: "En proceso" } : trabajo
+        ));
+      } else {
+        console.error("Error al desbloquear el trabajo");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const getMetric = (status: string) => trabajos.filter(t => t.estado === status).length;
 
@@ -90,7 +116,13 @@ function Impresiones() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-3 text-gray-400">
                         {trabajo.estado === 'Bloqueado' ? (
-                          <button className="hover:text-[#6A0032] transition"><Unlock size={18}/></button>
+                          <button 
+                            onClick={() => handleDesbloquear(trabajo.id)} 
+                            className="hover:text-green-600 transition"
+                            title="Desbloquear impresión"
+                          >
+                            <Unlock size={18}/>
+                          </button>
                         ) : (
                           <button className="hover:text-[#6A0032] transition"><Eye size={18}/></button>
                         )}

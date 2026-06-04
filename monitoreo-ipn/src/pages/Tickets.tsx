@@ -36,16 +36,13 @@ function Tickets() {
       formData.append("usuario", usuario);
       formData.append("description", description);
       
-      // Adjuntamos cada archivo binario real de la lista
       evidencias.forEach((file) => {
-        formData.append("evidencia", file); // Tu backend recibirá este arreglo (ej: Multer en Node)
+        formData.append("evidencia", file); 
       });
 
-      // 2. Ejecutamos la petición HTTP multipart/form-data
       const response = await fetch("http://localhost:3000/api/tickets", {
         method: "POST",
         headers: {
-          // Nota importante: Al pasar FormData NO debes declarar "Content-Type", el navegador lo hace solo.
           "Authorization": `Bearer ${token}` 
         },
         body: formData
@@ -60,7 +57,6 @@ function Tickets() {
         confirmButtonColor: "#6A0032"
       });
 
-      // Limpiamos el formulario
       setArea("");
       setEquipo("");
       setUsuario("");

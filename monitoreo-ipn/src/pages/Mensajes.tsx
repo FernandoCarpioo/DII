@@ -13,7 +13,6 @@ function Mensajes() {
   const [loadingChats, setLoadingChats] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
 
-  // 2. Cargar canales de comunicación institucionales disponibles al montar el módulo
   useEffect(() => {
     const fetchConversaciones = async () => {
       try {
@@ -38,7 +37,6 @@ function Mensajes() {
     fetchConversaciones();
   }, []);
 
-  // 3. Efecto secundario: Cada vez que el usuario cambie de chat, consulta sus mensajes y miembros específicos
   useEffect(() => {
     if (!selectedChatId) return;
 
@@ -64,7 +62,6 @@ function Mensajes() {
     fetchChatDetails();
   }, [selectedChatId]);
 
-  // 4. Enviar un nuevo mensaje seguro e insertarlo de forma reactiva en la vista
   const handleSendMessage = async (text: string) => {
     if (!selectedChatId) return;
 
@@ -83,7 +80,6 @@ function Mensajes() {
         const nuevoMsg = await res.json(); // Tu backend retorna la fila creada en la BD
         setMessages((prev) => [...prev, nuevoMsg]);
         
-        // Opcional: Actualizar el último mensaje en la barra lateral de forma inmediata
         setChats((prevChats) =>
           prevChats.map((c) =>
             c.id === selectedChatId ? { ...c, lastMessage: text, time: "Ahora" } : c
@@ -95,7 +91,6 @@ function Mensajes() {
     }
   };
 
-  // Identifica el objeto del chat actual seleccionado para extraer su nombre y metadatos
   const currentChat = chats.find(c => c.id === selectedChatId);
 
   return (
@@ -112,7 +107,6 @@ function Mensajes() {
           />
         </div>
 
-        {/* COLUMNA CENTRAL: VENTANA DEL CHAT ACTIVO (6/12) */}
         <div className="col-span-6 border-r border-gray-100 flex flex-col overflow-hidden">
           <ChatWindow 
             chatName={currentChat?.name || "Selecciona un chat"}
@@ -123,7 +117,6 @@ function Mensajes() {
           />
         </div>
 
-        {/* COLUMNA DERECHA: INFORMACIÓN DEL ENTORNO / INTEGRANTES (3/12) */}
         <div className="col-span-3 overflow-hidden">
           <ChatInfo 
             chatName={currentChat?.name || ""}

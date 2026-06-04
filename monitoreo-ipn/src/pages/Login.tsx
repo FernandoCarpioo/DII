@@ -13,7 +13,6 @@ import logoIPN from "../assets/logo-ipn.png";
 import bgIPN from "../assets/fondo-ipn.jpeg";
 
 function Login() {
-  // Estados para capturar los datos del formulario
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,16 +20,13 @@ function Login() {
   
   const navigate = useNavigate();
 
-  // URL de tu API backend (aqui va la ruta real del servidor)
   const API_URL = "http://localhost:3000/api/auth/login"; 
 
-  // Función manejadora del inicio de sesión
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Validación simple de campos vacíos
     if (!cleanEmail || !password) {
       Swal.fire({
         icon: "warning",
@@ -41,7 +37,7 @@ function Login() {
       return;
     }
 
-    setLoading(true); // Activamos estado de carga
+    setLoading(true); 
 
     try {
       // Petición real al backend
@@ -57,16 +53,16 @@ function Login() {
       });
 
       const data = await response.json();
+      console.log("RESPUESTA LOGIN:", data);
 
       if (!response.ok) {
         // Si el backend responde con un error (ej. 401, 404, 500)
         throw new Error(data.message || "Credenciales incorrectas");
       }
 
-      // --- AUTENTICACIÓN EXITOSA ---
-      // Guardamos el token de sesión (JWT) y el rol que mande tu BD
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userRole", data.role); // ej: "admin" o "analista"
+      localStorage.setItem("userId", data.id);
+      localStorage.setItem("userName", data.nombre);
+      localStorage.setItem("userRole", data.role); 
 
       Swal.fire({
         icon: "success",
@@ -75,7 +71,7 @@ function Login() {
         timer: 1500,
         showConfirmButton: false
       }).then(() => {
-        // Redirección dinámica basada en el rol real que guardó la base de datos
+
         if (data.role === "admin") {
           navigate("/admin");
         } else {
@@ -92,13 +88,12 @@ function Login() {
         confirmButtonColor: "#6A0032"
       });
     } finally {
-      setLoading(false); // Apagamos el estado de carga al terminar
+      setLoading(false); 
     }
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* SECCIÓN IZQUIERDA: DISEÑO IPN */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src={bgIPN}
@@ -129,7 +124,6 @@ function Login() {
         </div>
       </div>
 
-      {/* SECCIÓN DERECHA: FORMULARIO INTERACTIVO */}
       <div className="flex-1 flex items-center justify-center bg-[#f5f6fa] px-6">
         <div className="bg-white w-full max-w-xl rounded-3xl shadow-xl p-10">
           <div className="mb-10">
@@ -194,7 +188,6 @@ function Login() {
               </button>
             </div>
 
-            {/* BOTÓN SUBMIT CON SPINNER */}
             <button
               type="submit"
               disabled={loading}
