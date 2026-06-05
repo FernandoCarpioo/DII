@@ -35,7 +35,7 @@ function MisGrupos() {
 
   const fetchGrupos = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/grupos?userId=${userId}`)
+      const response = await fetch(`http://148.204.107.52:5002/api/grupos?userId=${userId}`)
       
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor")
@@ -72,7 +72,7 @@ function MisGrupos() {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`http://localhost:3000/api/grupos/${id}`, {
+        const response = await fetch(`http://148.204.107.52:5002/api/grupos/${id}`, {
           method: "DELETE"
         })
 

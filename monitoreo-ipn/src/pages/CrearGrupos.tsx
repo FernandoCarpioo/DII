@@ -63,7 +63,7 @@ function CrearGrupos({ grupoInicial, onGrupoCreado, onCancelar }: CrearGruposPro
 
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/usuarios")
+      const response = await fetch("http://148.204.107.52:5002/api/usuarios")
       const data = await response.json()
       setEmpleados(data)
     } catch (error) {
@@ -138,8 +138,8 @@ function CrearGrupos({ grupoInicial, onGrupoCreado, onCancelar }: CrearGruposPro
     try {
       const isEditing = !!grupoInicial;
       const url = isEditing 
-        ? `http://localhost:3000/api/grupos/${grupoInicial.id}` 
-        : "http://localhost:3000/api/grupos";
+        ? `http://148.204.107.52:5002/api/grupos/${grupoInicial.id}` 
+        : "http://148.204.107.52:5002/api/grupos";
       const method = isEditing ? "PUT" : "POST";
 
         const integrantesParaEnviar = Array.from(new Set([
@@ -348,21 +348,29 @@ function CrearGrupos({ grupoInicial, onGrupoCreado, onCancelar }: CrearGruposPro
           </div>
 
           <div className="flex flex-wrap gap-2.5 max-h-[140px] overflow-y-auto p-1 custom-scrollbar">
-            {empleadosFiltrados.map((empleado) => (
-              <div
-                key={empleado.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, empleado.id)}
-                onClick={() => agregarMiembroALista(empleado.id)}
-                className="bg-white border border-gray-200 hover:border-[#6A0032] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer select-none group shadow-2xs hover:shadow-xs transition"
-              >
-                <GripVertical size={12} className="text-gray-300 group-hover:text-[#6A0032] transition" />
-                <div className="text-left">
-                  <p className="text-gray-800">{empleado.name}</p>
-                  <p className="text-[9px] text-gray-400 font-normal">{empleado.puesto}</p>
-                </div>
+            {loadingUsuarios ? (
+              <div className="w-full text-center py-4 text-xs text-gray-400 font-semibold flex items-center justify-center gap-2">
+                <RefreshCw size={14} className="animate-spin" /> Cargando directorio...
               </div>
-            ))}
+            ) : empleadosFiltrados.length === 0 ? (
+              <p className="w-full text-center py-4 text-xs text-gray-400">No se encontraron empleados</p>
+            ) : (
+              empleadosFiltrados.map((empleado) => (
+                <div
+                  key={empleado.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, empleado.id)}
+                  onClick={() => agregarMiembroALista(empleado.id)}
+                  className="bg-white border border-gray-200 hover:border-[#6A0032] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer select-none group shadow-2xs hover:shadow-xs transition"
+                >
+                  <GripVertical size={12} className="text-gray-300 group-hover:text-[#6A0032] transition" />
+                  <div className="text-left">
+                    <p className="text-gray-800">{empleado.name}</p>
+                    <p className="text-[9px] text-gray-400 font-normal">{empleado.puesto}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

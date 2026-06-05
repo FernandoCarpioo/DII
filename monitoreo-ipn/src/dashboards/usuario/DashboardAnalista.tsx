@@ -35,7 +35,7 @@ function DashboardAnalista() {
         const savedName = localStorage.getItem("userName") || "Analista";
 
         // Petición al endpoint exclusivo del Analista
-        const response = await fetch("http://localhost:3000/api/user/dashboard-summary", {
+        const response = await fetch("http://148.204.107.52:5002/api/user/dashboard-summary", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

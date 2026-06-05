@@ -32,7 +32,7 @@ function Tareas() {
     const fetchTareas = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3000/api/tasks", {
+        const response = await fetch("http://148.204.107.52:5002/api/tasks", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await response.json();

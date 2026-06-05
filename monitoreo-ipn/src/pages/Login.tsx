@@ -20,7 +20,7 @@ function Login() {
   
   const navigate = useNavigate();
 
-  const API_URL = "http://localhost:3000/api/auth/login"; 
+  const API_URL = "/api/login";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +40,6 @@ function Login() {
     setLoading(true); 
 
     try {
-      // Petición real al backend
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -52,13 +51,18 @@ function Login() {
         }),
       });
 
-      const data = await response.json();
-      console.log("RESPUESTA LOGIN:", data);
-
+      // 1. PRIMERO validamos si la respuesta fue exitosa (200 OK)
       if (!response.ok) {
-        // Si el backend responde con un error (ej. 401, 404, 500)
-        throw new Error(data.message || "Credenciales incorrectas");
+        // 2. Si no fue exitosa, leemos el error como TEXTO, no como JSON
+        const errorText = await response.text();
+        console.error("ERROR CRÍTICO DEL SERVIDOR (No es JSON):", errorText);
+        
+        throw new Error(`Error del servidor (Código ${response.status}). Revisa la consola (F12).`);
       }
+
+      // 3. Si todo salió bien, AHORA SÍ lo convertimos a JSON
+      const data = await response.json();
+      console.log("RESPUESTA LOGIN EXITOSA:", data);
 
       localStorage.setItem("userId", data.id);
       localStorage.setItem("userName", data.nombre);
@@ -71,7 +75,6 @@ function Login() {
         timer: 1500,
         showConfirmButton: false
       }).then(() => {
-
         if (data.role === "admin") {
           navigate("/admin");
         } else {
@@ -80,10 +83,10 @@ function Login() {
       });
 
     } catch (error: any) {
-      // Captura de errores del servidor o de red
+      console.error("Error capturado:", error);
       Swal.fire({
         icon: "error",
-        title: "Error de autenticación",
+        title: "Error de conexión",
         text: error.message || "Hubo un problema al conectar con el servidor.",
         confirmButtonColor: "#6A0032"
       });

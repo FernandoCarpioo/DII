@@ -1,10 +1,10 @@
 const pool = require("../config/db");
 
 // ======================================
-// OBTENER USUARIOS
+// OBTENER usuarios_login
 // ======================================
 
-const getUsuarios = async (req, res) => {
+const getusuarios_login = async (req, res) => {
   try {
 
     const result = await pool.query(`
@@ -17,7 +17,7 @@ const getUsuarios = async (req, res) => {
         u.activo,
         r.nombre AS rol,
         u.role_id
-      FROM usuarios u
+      usuarios_login u
       INNER JOIN roles r
         ON r.id = u.role_id
       ORDER BY u.id
@@ -165,7 +165,7 @@ const eliminarUsuario = async (req, res) => {
 
     await pool.query(
       `
-      DELETE FROM usuarios
+      DELETE usuarios_login
       WHERE id = $1
       `,
       [id]

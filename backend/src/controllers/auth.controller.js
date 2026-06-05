@@ -12,7 +12,7 @@ const login = async (req, res) => {
         u.email,
         u.password_hash,
         r.nombre AS role
-      FROM usuarios u
+      FROM usuarios_login u
       INNER JOIN roles r
         ON r.id = u.role_id
       WHERE u.email = $1

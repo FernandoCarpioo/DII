@@ -17,7 +17,7 @@ function Mensajes() {
     const fetchConversaciones = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/chat/conversations", {
+        const res = await fetch("http://148.204.107.52:5002/api/chat/conversations", {
           method: "GET",
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -44,7 +44,7 @@ function Mensajes() {
       setLoadingMessages(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:3000/api/chat/conversations/${selectedChatId}`, {
+        const res = await fetch(`http://148.204.107.52:5002/api/chat/conversations/${selectedChatId}`, {
           method: "GET",
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -67,7 +67,7 @@ function Mensajes() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:3000/api/chat/messages`, {
+      const res = await fetch(`http://148.204.107.52:5002/api/chat/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

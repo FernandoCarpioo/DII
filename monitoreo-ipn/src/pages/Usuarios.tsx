@@ -16,7 +16,7 @@ function Usuarios() {
 
   const [editando, setEditando] = useState<number | null>(null)
 
-  const API = "http://localhost:3000/api/usuarios"
+  const API = "http://148.204.107.52:5002/api/usuarios"
 
   const cargarUsuarios = async () => {
 

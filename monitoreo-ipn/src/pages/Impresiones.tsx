@@ -23,7 +23,7 @@ function Impresiones() {
     const fetchSpooler = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/printing/jobs", {
+        const res = await fetch("http://148.204.107.52:5002/api/printing/jobs", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
@@ -43,7 +43,7 @@ function Impresiones() {
     
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:3000/api/printing/jobs/${id}/unblock`, {
+      const res = await fetch(`http://148.204.107.52:5002/api/printing/jobs/${id}/unblock`, {
         method: 'POST',
         headers: { "Authorization": `Bearer ${token}` }
       });
