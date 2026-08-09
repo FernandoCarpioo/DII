@@ -25,7 +25,7 @@ function Equipos() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://148.204.107.52:5002/api/infrastructure/devices", {
+      const res = await fetch("http://localhost:5002/api/infrastructure/devices", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const resData = await res.json();

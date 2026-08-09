@@ -32,7 +32,7 @@ function AsignarTareaModal({ isOpen, onClose, onTareaCreada }: AsignarTareaModal
     const fetchGruposSelector = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://148.204.107.52:5002/api/admin/grupos", {
+        const res = await fetch("http://localhost:5002/api/admin/grupos", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
@@ -64,7 +64,7 @@ function AsignarTareaModal({ isOpen, onClose, onTareaCreada }: AsignarTareaModal
       const [year, month, day] = date.split("-");
       const formattedDate = `${day}/${month}/${year}`;
 
-      const response = await fetch("http://148.204.107.52:5002/api/tasks/create", {
+      const response = await fetch("http://localhost:5002/api/tasks/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

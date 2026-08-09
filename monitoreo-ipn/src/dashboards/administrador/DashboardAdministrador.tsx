@@ -38,7 +38,7 @@ function DashboardAdministrador() {
         if (savedName) setAdminName(savedName);
 
         // Petición al backend (Ajusta esta URL a tu endpoint real de métricas/dashboard)
-        const response = await fetch("http://148.204.107.52:5002/api/admin/dashboard-summary", {
+        const response = await fetch("http://localhost:5002/api/admin/dashboard-summary", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

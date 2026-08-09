@@ -63,7 +63,7 @@ function CrearGrupos({ grupoInicial, onGrupoCreado, onCancelar }: CrearGruposPro
 
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch("http://148.204.107.52:5002/api/usuarios")
+      const response = await fetch("http://localhost:5002/api/usuarios")
       const data = await response.json()
       setEmpleados(data)
     } catch (error) {
@@ -138,8 +138,8 @@ function CrearGrupos({ grupoInicial, onGrupoCreado, onCancelar }: CrearGruposPro
     try {
       const isEditing = !!grupoInicial;
       const url = isEditing 
-        ? `http://148.204.107.52:5002/api/grupos/${grupoInicial.id}` 
-        : "http://148.204.107.52:5002/api/grupos";
+        ? `http://localhost:5002/api/grupos/${grupoInicial.id}` 
+        : "http://localhost:5002/api/grupos";
       const method = isEditing ? "PUT" : "POST";
 
         const integrantesParaEnviar = Array.from(new Set([

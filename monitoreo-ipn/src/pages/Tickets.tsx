@@ -40,7 +40,7 @@ function Tickets() {
         formData.append("evidencia", file); 
       });
 
-      const response = await fetch("http://148.204.107.52:5002/api/tickets", {
+      const response = await fetch("http://localhost:5002/api/tickets", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}` 
